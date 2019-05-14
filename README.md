@@ -1,12 +1,12 @@
 # amon-plugins
 
-A node.js package for amon-agent plugins shared between amon-master,
-amon-relay, amon-agent Triton components.
-
 (This repository is part of the Joyent Triton project. See the [contribution
 guidelines](https://github.com/joyent/triton/blob/master/CONTRIBUTING.md) --
 *Triton does not use GitHub PRs* -- and general documentation at the main
 [Triton project](https://github.com/joyent/triton) page.)
+
+A node.js package for amon-agent plugins shared between amon-master,
+amon-relay, amon-agent Triton components.
 
 
 ## Usage
@@ -17,6 +17,12 @@ For now, use the source.
 ## Development
 
 The following sections are about developing this module.
+
+### Testing
+
+Run the unit tests via:
+
+    make test
 
 ### Commiting
 
