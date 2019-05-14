@@ -1,0 +1,25 @@
+{
+  "name": "amon-plugins",
+  "version": "1.1.0",
+  "description": "Triton Amon probe plugins",
+  "private": true,
+  "author": "Joyent (joyent.com)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joyent/node-amon-plugins.git"
+  },
+  "license": "MPL-2.0",
+  "files": [
+    "lib"
+  ],
+  "engines": {
+    "node": ">=0.8"
+  },
+  "dependencies": {
+    "bunyan": "0.22.1",
+    "assert-plus": "0.1.2"
+  },
+  "devDependencies": {
+    "tap": "0.4.0"
+  }
+}
