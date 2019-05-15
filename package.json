@@ -1,6 +1,6 @@
 {
   "name": "amon-plugins",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Triton Amon probe plugins",
   "private": true,
   "author": "Joyent (joyent.com)",
@@ -13,13 +13,13 @@
     "lib"
   ],
   "engines": {
-    "node": ">=0.8"
+    "node": ">=6.x"
   },
   "dependencies": {
-    "bunyan": "0.22.1",
-    "assert-plus": "0.1.2"
+    "assert-plus": "1.0.0",
+    "bunyan": "1.8.2"
   },
   "devDependencies": {
-    "tap": "0.4.0"
+    "tap": "12.x"
   }
 }
