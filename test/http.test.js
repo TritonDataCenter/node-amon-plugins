@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (c) 2014, Joyent, Inc.
+ * Copyright 2019 Joyent, Inc.
  */
 
 var test = require('tap').test;
@@ -83,19 +83,21 @@ function createProbe(config) {
     var opts = _default_opts();
     config = config || {};
     opts.data.config.period = 3;
-    opts.data.config.threshold = 0;
+    opts.data.config.threshold = 1;
     opts.data.config.interval = 1;
+    opts.data.config.url = 'http://localhost:9000/';
 
     Object.keys(config).forEach(function (key) {
         opts.data.config[key] = config[key];
     });
 
-    opts.data.config.url = 'http://localhost:9000/';
     return new HttpProbe(opts);
 }
 
-function createServer(code, body) {
+function createTestServer(t, code, body) {
     return require('http').createServer(function (req, res) {
+        t.comment('test server request: "%s %s" -> %s %j',
+            req.method, req.url, code, body);
         res.writeHead(code, {});
         res.end(body);
     });
@@ -104,45 +106,54 @@ function createServer(code, body) {
 
 
 test('default config: success request', function (t) {
-    var server = createServer(200, 'hello');
+    var server = createTestServer(t, 200, 'hello');
     t.ok(server);
-    server.listen(9000, function _cb() {
-        var probe = createProbe();
+    server.listen(0, function _cb() {
+        var probe = createProbe({
+            url: 'http://localhost:' + server.address().port
+        });
         probe.start();
         probe.on('event', function (e) {
             t.error('should not have fired');
         });
 
-        probe.stop();
-        server.close();
+        // Give it 2s for the probe to make one or more checks.
+        setTimeout(function onFinish() {
+            probe.stop();
+            server.close();
+            t.end();
+        }, 2000);
     });
-    t.end();
 });
 
 test('default config: failed request', function (t) {
     t.plan(1);
-    var server = createServer(409, 'conflict!!');
+    var server = createTestServer(t, 409, 'conflict!!');
 
-    server.listen(9000, function _cb() {
-        var probe = createProbe();
+    server.listen(0, function _cb() {
+        var probe = createProbe({
+            url: 'http://localhost:' + server.address().port
+        });
         probe.start();
         probe.on('event', function (e) {
             t.ok(true, 'event did fire');
             probe.stop();
             server.close();
+            t.end();
         });
     });
 });
 
 test('custom statusCode', function (t) {
-    t.plan(4);
-
     // server returns a 200
-    var server = createServer(200, 'conflict!!');
+    var server = createTestServer(t, 200, 'conflict!!');
 
-    server.listen(9000, function () {
+    server.listen(0, function () {
         // configure probe to consider 401,409 as success
-        var probe = createProbe({statusCodes: [401, 409]});
+        var probe = createProbe({
+            statusCodes: [401, 409],
+            url: 'http://localhost:' + server.address().port
+        });
         t.ok(probe);
         probe.start();
         probe.on('event', function (e) {
@@ -152,6 +163,7 @@ test('custom statusCode', function (t) {
 
             probe.stop();
             server.close();
+            t.end();
         });
     });
 });
@@ -164,16 +176,19 @@ test('response time', function (t) {
         }, 500);
     });
 
-    var probe = createProbe({maxResponseTime:1});
+    server.listen(0, function () {
+        var probe = createProbe({
+            maxResponseTime: 1,
+            url: 'http://localhost:' + server.address().port
+        });
 
-    server.listen(9000, function () {
         probe.start();
         probe.on('event', function (e) {
             t.ok(e.data.message.indexOf('Maximum response time') != -1,
                 'has message');
-            t.end();
             probe.stop();
             server.close();
+            t.end();
         });
 
     });
@@ -192,13 +207,15 @@ test('auth', function (t) {
 
 
 test('probe bodyMatch test', function (t) {
-    var server = createServer(200,
+    var server = createTestServer(t, 200,
         ['This is a really really nice probe.',
         'We really should treat the probe well'].join('\n'));
 
-    server.listen(9000, function _cb() {
+    server.listen(0, function _cb() {
+        var probe;
         try {
-            var probe = createProbe({
+            probe = createProbe({
+                url: 'http://localhost:' + server.address().port,
                 bodyMatch: {
                     pattern: 'PROBE',
                     flags: 'i',
