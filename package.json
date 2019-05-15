@@ -9,6 +9,7 @@
     "url": "git+https://github.com/joyent/node-amon-plugins.git"
   },
   "license": "MPL-2.0",
+  "main": "lib/index.js",
   "files": [
     "lib"
   ],
