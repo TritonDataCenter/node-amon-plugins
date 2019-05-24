@@ -18,7 +18,8 @@
   },
   "dependencies": {
     "assert-plus": "1.0.0",
-    "bunyan": "1.8.2"
+    "bunyan": "1.8.2",
+    "zutil": "2.0.0 "
   },
   "devDependencies": {
     "tap": "12.x"
